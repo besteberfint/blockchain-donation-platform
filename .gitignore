@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Hardhat ve Derleme Çıktıları
+artifacts/
+cache/
+typechain/
+typechain-types/
+/dist
+/bundle
+
+# Hardhat Ignition (Yayim gecmisi)
+/ignition/deployments/
+
+# Test ve Kapsam Raporlari
+coverage/
+coverage.json
+.gas-snapshot
+/snapshots
+
+# Cevresel Degiskenler (KRITIK: Cuzdan anahtarlarini korur)
+.env
+.env.*
+!.env.example
+
+# Diger IDE ve Sistem Dosyalari
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
