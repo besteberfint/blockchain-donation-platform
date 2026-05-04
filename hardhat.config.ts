@@ -1,13 +1,12 @@
 import { defineConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox-viem";
-import "@nomicfoundation/hardhat-ignition-viem";
+import hardhatToolboxViem from "@nomicfoundation/hardhat-toolbox-viem";
 
 export default defineConfig({
+  plugins: [hardhatToolboxViem],
   solidity: "0.8.20",
   networks: {
     hardhat: {
-      type: "edr-simulated" // HHE15 hatasını çözen kritik satır
+      type: "edr-simulated"
     },
-    // Sepolia'yı şu anlık devre dışı bırakıyoruz ki hata vermesin
   },
 });
