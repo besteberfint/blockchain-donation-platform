@@ -2,7 +2,7 @@ import type { Address } from 'viem'
 
 // npm run deploy sonrası ignition/deployments/chain-31337/deployed_addresses.json
 // dosyasından alınan adres buraya yazılır.
-export const CONTRACT_ADDRESS: Address = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+export const CONTRACT_ADDRESS: Address = '0x79878186b6FA4719e93a1604563c41b45ddFCA96'
 
 export const CHARITY_ABI = [
   {

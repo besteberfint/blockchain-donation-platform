@@ -1,10 +1,12 @@
 {
   "scripts": {
-    "compile":  "hardhat build",
-    "test":     "hardhat test",
-    "node":     "hardhat node",
-    "deploy":   "hardhat ignition deploy ignition/modules/Charity.ts --network localhost",
+    "compile": "hardhat build",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy": "hardhat ignition deploy ignition/modules/Charity.ts --network localhost",
     "postdeploy": "node scripts/sync-address.mjs",
+    "deploy:sepolia": "hardhat ignition deploy ignition/modules/Charity.ts --network sepolia",
+    "postdeploy:sepolia": "node scripts/sync-address.mjs sepolia",
     "scenario": "hardhat run scripts/interact.ts --network localhost"
   },
   "devDependencies": {
@@ -14,6 +16,7 @@
     "@types/chai": "^5.2.3",
     "@types/node": "^22.19.17",
     "chai": "^6.2.2",
+    "dotenv": "^17.4.2",
     "forge-std": "github:foundry-rs/forge-std#v1.9.4",
     "hardhat": "^3.4.0",
     "typescript": "~5.8.0",

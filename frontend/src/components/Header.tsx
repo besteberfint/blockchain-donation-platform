@@ -1,12 +1,15 @@
+import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { hardhat } from 'wagmi/chains'
+import { hardhat, sepolia } from 'wagmi/chains'
 
 export function Header() {
   const { address, isConnected, chain } = useAccount()
   const { connect, connectors, isPending, error: connectError } = useConnect()
   const { disconnect } = useDisconnect()
+  const [copied, setCopied] = useState(false)
 
-  const wrongNetwork = isConnected && chain?.id !== hardhat.id
+  const wrongNetwork = isConnected && !!chain && chain.id !== hardhat.id && chain.id !== sepolia.id
   const hasInjected = typeof window !== 'undefined' && Boolean((window as any).ethereum)
   const connector = connectors[0]
 
@@ -15,28 +18,55 @@ export function Header() {
     connect({ connector })
   }
 
+  function handleCopy() {
+    if (!address) return
+    navigator.clipboard.writeText(address)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
     <header className="header">
       <div className="container">
         <div className="header-inner">
-          <div className="header-brand">
-            <span className="header-logo">⛓️</span>
-            <div>
-              <h1>Bağış Takip Sistemi</h1>
-              <p>Blockchain tabanlı şeffaf bağış platformu</p>
-            </div>
+          <div className="header-left">
+            <NavLink to="/" className="header-brand">
+              <span className="header-logo">⛓️</span>
+              <span className="header-brand-name">Bağış Takip</span>
+            </NavLink>
+            <nav className="header-nav">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              >
+                Kampanyalar
+              </NavLink>
+              {isConnected && (
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                >
+                  Dashboard
+                </NavLink>
+              )}
+            </nav>
           </div>
 
           <div className="header-right">
+            {chain && (
+              <span className="network-badge">
+                🟢 {chain.name}
+              </span>
+            )}
+
             {isConnected ? (
               <>
-                <span className="address-pill">
+                <button className="address-pill" onClick={handleCopy} title="Kopyala">
                   {address?.slice(0, 6)}…{address?.slice(-4)}
-                </span>
-                <button
-                  className="btn btn-outline-white btn-sm"
-                  onClick={() => disconnect()}
-                >
+                  <span className="copy-icon">{copied ? '✓' : '📋'}</span>
+                </button>
+                <button className="btn btn-outline-white btn-sm" onClick={() => disconnect()}>
                   Çıkış
                 </button>
               </>
@@ -50,11 +80,7 @@ export function Header() {
                 🦊 MetaMask Yükle
               </a>
             ) : (
-              <button
-                className="btn btn-white"
-                disabled={isPending}
-                onClick={handleConnect}
-              >
+              <button className="btn btn-white" disabled={isPending} onClick={handleConnect}>
                 {isPending
                   ? <><span className="spinner" /> Bağlanıyor…</>
                   : '🦊 Cüzdan Bağla'}
@@ -65,11 +91,10 @@ export function Header() {
 
         {wrongNetwork && (
           <div className="chain-warning">
-            ⚠️ Yanlış ağ — MetaMask'ta <strong>Hardhat Localhost (31337)</strong> ağını seçin.
+            ⚠️ Yanlış ağ — MetaMask'ta <strong>Hardhat Localhost</strong> veya <strong>Sepolia</strong> ağını seçin.
           </div>
         )}
-
-        {connectError && (
+        {connectError && !connectError.message.includes('already connected') && (
           <div className="chain-warning">
             ⚠️ Bağlantı hatası: {connectError.message}
           </div>

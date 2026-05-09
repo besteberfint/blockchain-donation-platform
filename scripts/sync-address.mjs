@@ -1,19 +1,21 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 
-// npm postdeploy hook'u her zaman proje kökünden çalışır
 const root = process.cwd()
 
-const deployedPath = resolve(root, 'ignition/deployments/chain-31337/deployed_addresses.json')
+// 'sepolia' argümanı verilirse Sepolia, yoksa localhost
+const chainArg = process.argv[2]
+const chainDir = chainArg === 'sepolia' ? 'chain-11155111' : 'chain-31337'
+
+const deployedPath = resolve(root, `ignition/deployments/${chainDir}/deployed_addresses.json`)
 
 let deployed
 try {
-  // BOM karakterini temizle (UTF-8 BOM: ﻿)
   const raw = readFileSync(deployedPath, 'utf8').replace(/^﻿/, '')
   deployed = JSON.parse(raw)
 } catch (err) {
   if (err.code === 'ENOENT') {
-    console.error('❌ deployed_addresses.json bulunamadı — önce npm run deploy çalıştırın.')
+    console.error(`❌ ${chainDir}/deployed_addresses.json bulunamadı — önce deploy çalıştırın.`)
   } else {
     console.error('❌ deployed_addresses.json okunamadı:', err.message)
   }
@@ -29,13 +31,11 @@ if (!address) {
 const FILES = [
   {
     path: resolve(root, 'frontend/src/contract.ts'),
-    // export const CONTRACT_ADDRESS: Address = '0x...'
     regex: /export const CONTRACT_ADDRESS: Address = '0x[0-9a-fA-F]+'/m,
     replacement: `export const CONTRACT_ADDRESS: Address = '${address}'`,
   },
   {
     path: resolve(root, 'frontend-exports/config.ts'),
-    // export const CONTRACT_ADDRESS = "0x..."; // local
     regex: /export const CONTRACT_ADDRESS = "0x[0-9a-fA-F]+"/m,
     replacement: `export const CONTRACT_ADDRESS = "${address}"`,
   },
@@ -57,4 +57,6 @@ for (const { path: filePath, regex, replacement } of FILES) {
   console.log(`✅ ${rel} güncellendi`)
 }
 
-console.log(`\n   Kontrat adresi: ${address}\n`)
+const network = chainArg === 'sepolia' ? 'Sepolia' : 'Localhost'
+console.log(`\n   Ağ: ${network}`)
+console.log(`   Kontrat adresi: ${address}\n`)

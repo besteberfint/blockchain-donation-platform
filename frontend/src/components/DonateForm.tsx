@@ -4,6 +4,8 @@ import { parseEther } from 'viem'
 import { useQueryClient } from '@tanstack/react-query'
 import { CONTRACT_ADDRESS, CHARITY_ABI } from '../contract'
 
+const QUICK_AMOUNTS = ['0.1', '0.5', '1']
+
 export function DonateForm() {
   const { isConnected } = useAccount()
   const queryClient = useQueryClient()
@@ -56,6 +58,22 @@ export function DonateForm() {
       <p className="card-title">🎁 Bağış Yap</p>
 
       <div className="form-group">
+        <label className="form-label">Hızlı Seçim</label>
+        <div className="quick-amounts">
+          {QUICK_AMOUNTS.map(q => (
+            <button
+              key={q}
+              className={`btn-quick${amount === q ? ' active' : ''}`}
+              onClick={() => { setAmount(q); setLocalError('') }}
+              disabled={isLoading}
+            >
+              {q} ETH
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="form-group">
         <label className="form-label">Miktar (ETH)</label>
         <input
           className="form-input"
@@ -75,7 +93,9 @@ export function DonateForm() {
         onClick={handleDonate}
         disabled={isLoading}
       >
-        {isLoading ? <><span className="spinner" /> {isConfirming ? 'Onaylanıyor…' : 'Gönderiliyor…'}</> : 'Bağış Yap'}
+        {isLoading
+          ? <><span className="spinner" /> {isConfirming ? 'Onaylanıyor…' : 'Gönderiliyor…'}</>
+          : 'Bağış Yap'}
       </button>
 
       {localError && <div className="alert alert-error">⚠️ {localError}</div>}

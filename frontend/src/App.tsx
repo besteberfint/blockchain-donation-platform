@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useBlockNumber } from 'wagmi'
 import { useQueryClient } from '@tanstack/react-query'
 import { Header } from './components/Header'
-import { Stats } from './components/Stats'
-import { DonateForm } from './components/DonateForm'
-import { CreateRequestForm } from './components/CreateRequestForm'
-import { RequestList } from './components/RequestList'
+import { CampaignPage } from './pages/CampaignPage'
+import { DashboardPage } from './pages/DashboardPage'
 
 function useAutoRefresh() {
   const queryClient = useQueryClient()
@@ -17,20 +16,13 @@ function useAutoRefresh() {
 
 export default function App() {
   useAutoRefresh()
-
   return (
-    <>
+    <BrowserRouter>
       <Header />
-      <main className="container main">
-        <Stats />
-
-        <div className="forms-row">
-          <DonateForm />
-          <CreateRequestForm />
-        </div>
-
-        <RequestList />
-      </main>
-    </>
+      <Routes>
+        <Route path="/" element={<CampaignPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

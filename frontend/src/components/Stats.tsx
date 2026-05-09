@@ -35,15 +35,14 @@ export function Stats() {
 
   const isManager = isConnected && manager && address?.toLowerCase() === manager.toLowerCase()
   const isDonor = isConnected && myDonation !== undefined && myDonation > 0n
-
   const role = isManager ? 'Yönetici 👑' : isDonor ? 'Bağışçı 🎁' : 'Ziyaretçi'
 
   return (
     <div className="stats-grid">
       <div className="stat-card">
-        <span className="stat-icon">💰</span>
+        <span className="stat-icon">🌍</span>
         <div>
-          <p className="stat-label">Kontrat Bakiyesi</p>
+          <p className="stat-label">Toplam Toplanan</p>
           <p className="stat-value">
             {balance !== undefined ? `${parseFloat(formatEther(balance)).toFixed(4)} ETH` : '—'}
           </p>
@@ -53,7 +52,7 @@ export function Stats() {
       <div className="stat-card">
         <span className="stat-icon">👥</span>
         <div>
-          <p className="stat-label">Toplam Bağışçı</p>
+          <p className="stat-label">Küresel Bağışçı</p>
           <p className="stat-value">{totalDonors?.toString() ?? '—'}</p>
         </div>
       </div>
@@ -61,7 +60,7 @@ export function Stats() {
       {isConnected && (
         <>
           <div className="stat-card">
-            <span className="stat-icon">🎗️</span>
+            <span className="stat-icon">❤️</span>
             <div>
               <p className="stat-label">Bağışlarım</p>
               <p className="stat-value">
@@ -73,9 +72,9 @@ export function Stats() {
           </div>
 
           <div className="stat-card">
-            <span className="stat-icon">🪪</span>
+            <span className="stat-icon">👤</span>
             <div>
-              <p className="stat-label">Rolünüz</p>
+              <p className="stat-label">Profilim</p>
               <p className="stat-value" style={{ fontSize: '1rem' }}>{role}</p>
             </div>
           </div>
