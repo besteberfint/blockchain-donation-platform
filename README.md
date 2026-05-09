@@ -2,14 +2,17 @@
 
 Ethereum blokzinciri üzerinde çalışan şeffaf bağış platformu. Her bağış ve harcama işlemi zincirde değiştirilemez şekilde kayıtlıdır; bağışçılar harcamaları oylamaya katılarak denetleyebilir.
 
+**Canlı ağ:** Sepolia Testnet — `0x79878186b6FA4719e93a1604563c41b45ddFCA96`
+
 ## Özellikler
 
-- **Bağış yap** — MetaMask ile ETH gönderin, bakiye anlık güncellenir
-- **Harcama talebi oluştur** — Yönetici, tedarikçi adresine ödeme talebi açar
+- **Landing page** — kampanya kartı, hero section, canlı istatistikler
+- **Bağış yap** — MetaMask ile ETH gönder, hızlı miktar butonları (0.1 / 0.5 / 1 ETH)
+- **Harcama talebi** — Yönetici, tedarikçi adresine ödeme talebi açar (sadece admin)
 - **Oylama** — Sadece bağışçılar oy verebilir; çifte oy koruması mevcuttur
 - **Finalize** — Bağışçıların yarısından fazlası onaylarsa yönetici ödemeyi gerçekleştirir
+- **Admin / Kullanıcı ayrımı** — Yönetici paneli ve genel kampanya sayfası ayrıdır
 - **Reentrancy koruması** — `nonReentrant` modifier + CEI pattern
-- **Otomatik adres senkronizasyonu** — `npm run deploy` sonrası kontrat adresi frontend'e otomatik yazılır
 
 ## Teknoloji Yığını
 
@@ -19,46 +22,65 @@ Ethereum blokzinciri üzerinde çalışan şeffaf bağış platformu. Her bağı
 | Geliştirme ortamı | Hardhat 3 (viem tabanlı) + Ignition |
 | Testler | Node.js test runner + Chai (34 test) |
 | Frontend | React 18 + Vite 5 + TypeScript |
+| Routing | React Router v6 |
 | Blockchain bağlantısı | Wagmi v2 + Viem v2 |
 | Cüzdan | MetaMask (injected connector) |
+| Ağlar | Sepolia Testnet / Hardhat Localhost |
 
-## Kurulum
+## Kullanıcı Olarak Çalıştırma (Sepolia)
+
+Kontrat Sepolia'da canlı olduğu için sadece frontend'i başlatman yeterli:
 
 ```bash
-# Bağımlılıkları yükle (proje kökü)
-npm install
+cd frontend && npm install && npm run dev
+```
 
-# Frontend bağımlılıklarını yükle
+Tarayıcıda `http://localhost:5173` aç, MetaMask'ta **Sepolia** ağını seç, cüzdanı bağla.
+
+> Sepolia ETH için: `faucet.sepolia.dev` adresinden Google hesabıyla ücretsiz test ETH alabilirsin.
+
+## Geliştirici Kurulumu (Localhost)
+
+```bash
+# Bağımlılıkları yükle
+npm install
 cd frontend && npm install && cd ..
 ```
 
-## Çalıştırma
-
-Üç ayrı terminal gereklidir:
+Üç ayrı terminal:
 
 ```bash
-# Terminal 1 — Yerel Hardhat node'u başlat
+# Terminal 1
 npm run node
 
-# Terminal 2 — Kontratı deploy et (adres otomatik synclenir)
+# Terminal 2
 npm run deploy
 
-# Terminal 3 — Frontend dev server
+# Terminal 3
 cd frontend && npm run dev
 ```
 
-Uygulama `http://localhost:5173` adresinde açılır.
+## Sepolia'ya Deploy
 
-> **MetaMask ayarı:** Ağ olarak `Hardhat Localhost` (Chain ID: 31337, RPC: `http://127.0.0.1:8545`) seçilmeli. Hardhat node başlatıldığında konsolda görünen test hesap private key'lerinden birini MetaMask'a import edebilirsiniz.
+`.env` dosyası oluştur (`.env.example`'ı kopyala):
+```
+SEPOLIA_PRIVATE_KEY=0xsenin_private_keyin
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+```
+
+```bash
+npm run deploy:sepolia
+```
 
 ## Kullanılabilir Komutlar
 
 ```bash
-npm run compile    # Solidity kontratı derle
-npm run test       # 34 testi çalıştır
-npm run node       # Yerel Hardhat node başlat (chain ID 31337)
-npm run deploy     # Kontratı deploy et + adresi frontend'e yaz
-npm run scenario   # Uçtan uca demo senaryosu (bağış → talep → oy → ödeme)
+npm run compile          # Solidity kontratı derle
+npm run test             # 34 testi çalıştır
+npm run node             # Yerel Hardhat node başlat
+npm run deploy           # Localhost'a deploy et
+npm run deploy:sepolia   # Sepolia'ya deploy et
+npm run scenario         # Uçtan uca demo senaryosu
 ```
 
 ## Proje Yapısı
@@ -66,30 +88,30 @@ npm run scenario   # Uçtan uca demo senaryosu (bağış → talep → oy → ö
 ```
 blockchain-donation-platform/
 ├── contracts/
-│   └── Charity.sol              # Akıllı kontrat
+│   └── Charity.sol
 ├── test/
 │   └── Charity.ts               # 34 entegrasyon testi
 ├── ignition/modules/
-│   └── Charity.ts               # Hardhat Ignition deployment modülü
+│   └── Charity.ts               # Deployment modülü
 ├── scripts/
-│   ├── deploy.ts                # Deployment scripti
-│   ├── interact.ts              # Uçtan uca senaryo scripti
-│   └── sync-address.mjs         # Kontrat adresini frontend'e yazan postdeploy hooku
-├── frontend-exports/
-│   ├── Charity.abi.json         # Kontrat ABI'ı (ayrı kullanım için)
-│   └── config.ts                # Kontrat adresi + ABI export
+│   ├── interact.ts              # Uçtan uca senaryo
+│   └── sync-address.mjs         # Kontrat adresini frontend'e yazan hook
 └── frontend/
     └── src/
-        ├── contract.ts          # CONTRACT_ADDRESS + ABI (sync-address tarafından güncellenir)
-        ├── wagmi.ts             # Wagmi config (localhost chain)
-        ├── App.tsx              # Ana uygulama, her blokta otomatik yenileme
-        └── components/
-            ├── Header.tsx       # Cüzdan bağlantısı, ağ uyarısı
-            ├── Stats.tsx        # Bakiye, bağışçı sayısı, rolünüz
-            ├── DonateForm.tsx   # Bağış formu
-            ├── CreateRequestForm.tsx  # Harcama talebi (yalnızca yönetici)
-            ├── RequestList.tsx  # Tüm talepleri listeler
-            └── RequestCard.tsx  # Oy verme, finalize, oy çubuğu
+        ├── pages/
+        │   ├── CampaignPage.tsx     # Landing page (herkese açık)
+        │   └── DashboardPage.tsx    # Admin / bağışçı paneli
+        ├── components/
+        │   ├── Header.tsx           # Navbar, cüzdan bağlantısı
+        │   ├── HeroSection.tsx      # Hero bölümü
+        │   ├── CampaignCard.tsx     # Kampanya kartı (canlı veriler)
+        │   ├── Stats.tsx            # İstatistik kartları
+        │   ├── DonateForm.tsx       # Bağış formu
+        │   ├── CreateRequestForm.tsx
+        │   ├── RequestList.tsx
+        │   └── RequestCard.tsx
+        ├── contract.ts              # CONTRACT_ADDRESS + ABI
+        └── wagmi.ts                 # Wagmi config
 ```
 
 ## Kontrat Akışı
@@ -101,20 +123,10 @@ donate()
               └─> finalizeRequest()  [yalnızca yönetici, çoğunluk şartı]
 ```
 
-## Testler
+## Roller
 
-```bash
-npm run test
-```
-
-34 test; deployment, bağış, harcama talebi, oylama, finalize ve güvenlik senaryolarını kapsar.
-
-## Demo Senaryosu
-
-Hardhat node çalışırken ve kontrat deploy edildikten sonra:
-
-```bash
-npm run scenario
-```
-
-3 bağışçı → harcama talebi → 2/3 onay → otomatik ödeme akışını konsolda adım adım gösterir.
+| Rol | Kim | Yetkiler |
+|-----|-----|----------|
+| Yönetici | Kontratı deploy eden hesap | Harcama talebi oluşturma, finalize |
+| Bağışçı | Bağış yapmış herhangi bir hesap | Bağış yapma, talepleri oylama |
+| Ziyaretçi | Bağışı olmayan hesap | Sadece görüntüleme |
