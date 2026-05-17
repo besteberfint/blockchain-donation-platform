@@ -1,6 +1,7 @@
 import { useRef, useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 import { formatEther } from 'viem'
+import type { Address } from 'viem'
 import { HeroSection } from '../components/HeroSection'
 import { CampaignCard } from '../components/CampaignCard'
 import { DonateForm } from '../components/DonateForm'
@@ -38,17 +39,15 @@ export function CampaignPage() {
   const approvedCampaigns: Campaign[] = (proposalsData ?? [])
     .map((p, i) => {
       if (p.status !== 'success' || !p.result) return null
-      const r = p.result as unknown as {
-        title: string; description: string; emoji: string
-        goalWei: bigint; approved: boolean; rejected: boolean
-      }
-      if (!r.approved) return null
+      const [, title, description, emoji, goalWei, approved] =
+        p.result as unknown as [Address, string, string, string, bigint, boolean, boolean]
+      if (!approved) return null
       return {
         id: `onchain-${i}`,
-        title: r.title,
-        description: r.description,
-        emoji: r.emoji,
-        goalEth: formatEther(r.goalWei),
+        title,
+        description,
+        emoji,
+        goalEth: formatEther(goalWei),
       }
     })
     .filter((c): c is Campaign => c !== null)

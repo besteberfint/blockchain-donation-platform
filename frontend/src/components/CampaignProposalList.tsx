@@ -67,11 +67,9 @@ export function CampaignProposalList() {
   const proposals: Proposal[] = (proposalsData ?? [])
     .map((p, i) => {
       if (p.status !== 'success' || !p.result) return null
-      const r = p.result as unknown as {
-        proposer: Address; title: string; description: string
-        emoji: string; goalWei: bigint; approved: boolean; rejected: boolean
-      }
-      return { ...r, index: i }
+      const [proposer, title, description, emoji, goalWei, approved, rejected] =
+        p.result as unknown as [Address, string, string, string, bigint, boolean, boolean]
+      return { proposer, title, description, emoji, goalWei, approved, rejected, index: i }
     })
     .filter((p): p is Proposal => p !== null)
 
