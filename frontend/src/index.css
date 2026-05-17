@@ -619,6 +619,59 @@ body {
 }
 .btn-quick:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Proposal cards ──────────────────────────── */
+.proposal-section { margin-top: 1rem; }
+.proposal-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.proposal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border-left: 4px solid var(--border);
+  background: var(--bg);
+  margin-bottom: 0.5rem;
+}
+.proposal-pending  { border-left-color: var(--warning); }
+.proposal-approved { border-left-color: var(--success); opacity: 0.85; }
+.proposal-rejected { border-left-color: var(--danger);  opacity: 0.6; }
+
+.proposal-header { display: flex; align-items: center; gap: 0.75rem; }
+.proposal-emoji  { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.proposal-info   { flex: 1; min-width: 0; }
+.proposal-title  { font-weight: 600; font-size: 0.9rem; }
+.proposal-meta   { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+.proposal-desc   { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.proposal-actions { display: flex; gap: 0.5rem; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #dc2626; }
+
+/* ── Emoji picker ────────────────────────────── */
+.emoji-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.emoji-btn {
+  font-size: 1.3rem;
+  padding: 0.3rem 0.45rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  line-height: 1;
+}
+.emoji-btn:hover { border-color: var(--primary); background: #eff6ff; }
+.emoji-btn.active { border-color: var(--primary); background: #dbeafe; }
+
 /* ── Admin banner ────────────────────────────── */
 .admin-banner {
   background: linear-gradient(135deg, #f59e0b, #ef4444);

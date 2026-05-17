@@ -7,8 +7,11 @@ contract Charity {
     event RequestCreated(uint256 indexed requestId, string description, address indexed vendor, uint256 amount);
     event Voted(uint256 indexed requestId, address indexed voter);
     event RequestFinalized(uint256 indexed requestId, address indexed vendor, uint256 amount);
+    event CampaignProposed(uint256 indexed proposalId, address indexed proposer, string title);
+    event CampaignApproved(uint256 indexed proposalId);
+    event CampaignRejected(uint256 indexed proposalId);
 
-    // --- State ---
+    // --- Structs ---
     struct Request {
         string description;
         address payable vendor;
@@ -17,21 +20,31 @@ contract Charity {
         bool completed;
     }
 
+    struct CampaignProposal {
+        address proposer;
+        string title;
+        string description;
+        string emoji;
+        uint256 goalWei;
+        bool approved;
+        bool rejected;
+    }
+
+    // --- State ---
     address public manager;
     mapping(address => uint256) public donations;
-    // requestId => voter => oy kullandı mı? (double voting koruması)
     mapping(uint256 => mapping(address => bool)) public hasVoted;
     Request[] public requests;
+    CampaignProposal[] public campaignProposals;
     uint256 public totalDonors;
-    bool private locked; // reentrancy kilidi
+    bool private locked;
 
-    // --- Modifier'lar ---
+    // --- Modifiers ---
     modifier onlyManager() {
         require(msg.sender == manager, "Sadece yonetici bu islemi yapabilir");
         _;
     }
 
-    // transfer() yerine call{} kullandığımız için reentrancy riski var; kilitleme ile önlüyoruz
     modifier nonReentrant() {
         require(!locked, "Reentrant cagri engellendi");
         locked = true;
@@ -95,11 +108,68 @@ contract Charity {
         require(address(this).balance >= req.amount, "Yetersiz kontrat bakiyesi");
 
         req.completed = true;
-        // transfer() yerine call{} kullanıyoruz: gas limiti yok, başarı kontrolü var
         (bool success, ) = req.vendor.call{value: req.amount}("");
         require(success, "Transfer basarisiz");
 
         emit RequestFinalized(_index, req.vendor, req.amount);
+    }
+
+    // --- Kampanya Teklifi ---
+    function proposeCampaign(
+        string calldata _title,
+        string calldata _description,
+        string calldata _emoji,
+        uint256 _goalWei
+    ) external {
+        require(bytes(_title).length > 0, "Baslik bos olamaz");
+        require(_goalWei > 0, "Hedef 0'dan buyuk olmali");
+
+        uint256 proposalId = campaignProposals.length;
+        campaignProposals.push(CampaignProposal({
+            proposer: msg.sender,
+            title: _title,
+            description: _description,
+            emoji: _emoji,
+            goalWei: _goalWei,
+            approved: false,
+            rejected: false
+        }));
+
+        emit CampaignProposed(proposalId, msg.sender, _title);
+    }
+
+    function approveCampaign(uint256 _index) external onlyManager {
+        require(_index < campaignProposals.length, "Gecersiz ID");
+        require(!campaignProposals[_index].approved, "Zaten onaylandi");
+        require(!campaignProposals[_index].rejected, "Zaten reddedildi");
+        campaignProposals[_index].approved = true;
+        emit CampaignApproved(_index);
+    }
+
+    function rejectCampaign(uint256 _index) external onlyManager {
+        require(_index < campaignProposals.length, "Gecersiz ID");
+        require(!campaignProposals[_index].approved, "Zaten onaylandi");
+        require(!campaignProposals[_index].rejected, "Zaten reddedildi");
+        campaignProposals[_index].rejected = true;
+        emit CampaignRejected(_index);
+    }
+
+    function getCampaignProposalsCount() external view returns (uint256) {
+        return campaignProposals.length;
+    }
+
+    function getCampaignProposal(uint256 _index) external view returns (
+        address proposer,
+        string memory title,
+        string memory description,
+        string memory emoji,
+        uint256 goalWei,
+        bool approved,
+        bool rejected
+    ) {
+        require(_index < campaignProposals.length, "Gecersiz ID");
+        CampaignProposal storage p = campaignProposals[_index];
+        return (p.proposer, p.title, p.description, p.emoji, p.goalWei, p.approved, p.rejected);
     }
 
     // --- Getter Yardımcıları ---
@@ -111,7 +181,6 @@ contract Charity {
         return requests.length;
     }
 
-    // Struct'ı tuple olarak döner; testlerde destructure edilebilir
     function getRequest(uint256 _index) public view returns (
         string memory description,
         address vendor,

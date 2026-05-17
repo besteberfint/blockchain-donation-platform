@@ -110,4 +110,63 @@ export const CHARITY_ABI = [
     ],
     outputs: [{ type: 'bool' }],
   },
+  {
+    type: 'event', name: 'CampaignProposed',
+    inputs: [
+      { name: 'proposalId', type: 'uint256', indexed: true },
+      { name: 'proposer',   type: 'address', indexed: true },
+      { name: 'title',      type: 'string',  indexed: false },
+    ],
+  },
+  {
+    type: 'event', name: 'CampaignApproved',
+    inputs: [{ name: 'proposalId', type: 'uint256', indexed: true }],
+  },
+  {
+    type: 'event', name: 'CampaignRejected',
+    inputs: [{ name: 'proposalId', type: 'uint256', indexed: true }],
+  },
+  {
+    type: 'function', name: 'proposeCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_title',       type: 'string'  },
+      { name: '_description', type: 'string'  },
+      { name: '_emoji',       type: 'string'  },
+      { name: '_goalWei',     type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function', name: 'approveCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_index', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function', name: 'rejectCampaign',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_index', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function', name: 'getCampaignProposalsCount',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    type: 'function', name: 'getCampaignProposal',
+    stateMutability: 'view',
+    inputs: [{ name: '_index', type: 'uint256' }],
+    outputs: [
+      { name: 'proposer',    type: 'address' },
+      { name: 'title',       type: 'string'  },
+      { name: 'description', type: 'string'  },
+      { name: 'emoji',       type: 'string'  },
+      { name: 'goalWei',     type: 'uint256' },
+      { name: 'approved',    type: 'bool'    },
+      { name: 'rejected',    type: 'bool'    },
+    ],
+  },
 ] as const

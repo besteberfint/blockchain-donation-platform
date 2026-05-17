@@ -2,6 +2,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { Stats } from '../components/Stats'
 import { DonateForm } from '../components/DonateForm'
 import { CreateRequestForm } from '../components/CreateRequestForm'
+import { CampaignProposalList } from '../components/CampaignProposalList'
 import { RequestList } from '../components/RequestList'
 import { CONTRACT_ADDRESS, CHARITY_ABI } from '../contract'
 
@@ -20,7 +21,7 @@ export function DashboardPage() {
     <main className="container main">
       {isManager && (
         <div className="admin-banner">
-          👑 Yönetici paneli — harcama taleplerini yönetebilirsiniz
+          👑 Yönetici paneli — kampanya tekliflerini ve harcama taleplerini yönetebilirsiniz
         </div>
       )}
       <Stats />
@@ -28,6 +29,7 @@ export function DashboardPage() {
         <DonateForm />
         <CreateRequestForm />
       </div>
+      <CampaignProposalList />
       <RequestList />
     </main>
   )

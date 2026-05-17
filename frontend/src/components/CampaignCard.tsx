@@ -1,14 +1,14 @@
 import { useReadContract } from 'wagmi'
-import { formatEther } from 'viem'
+import { formatEther, parseEther } from 'viem'
 import { CONTRACT_ADDRESS, CHARITY_ABI } from '../contract'
-
-const GOAL = 10n * 10n ** 18n // 10 ETH
+import type { Campaign } from '../campaignStore'
 
 interface Props {
+  campaign: Campaign
   onDonate: () => void
 }
 
-export function CampaignCard({ onDonate }: Props) {
+export function CampaignCard({ campaign, onDonate }: Props) {
   const { data: balance } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CHARITY_ABI,
@@ -27,15 +27,15 @@ export function CampaignCard({ onDonate }: Props) {
     functionName: 'getRequestsCount',
   })
 
+  const goal = parseEther(campaign.goalEth)
   const bal = balance ?? 0n
-  const progress = bal > 0n ? Math.min(100, Number((bal * 100n) / GOAL)) : 0
+  const progress = bal > 0n ? Math.min(100, Number((bal * 100n) / goal)) : 0
   const raised = parseFloat(formatEther(bal)).toFixed(3)
-  const goal = parseFloat(formatEther(GOAL)).toFixed(0)
 
   return (
     <div className="campaign-card">
       <div className="campaign-card-image">
-        <span className="campaign-card-emoji">🎓</span>
+        <span className="campaign-card-emoji">{campaign.emoji}</span>
         <span className="campaign-badge">🔥 Aktif</span>
         <span className="campaign-badge-right">
           ❤️ {totalDonors?.toString() ?? '0'} bağışçı
@@ -43,14 +43,11 @@ export function CampaignCard({ onDonate }: Props) {
       </div>
 
       <div className="campaign-card-body">
-        <h3 className="campaign-title">Eğitime Destek Kampanyası</h3>
-        <p className="campaign-desc">
-          Türkiye'nin dezavantajlı bölgelerindeki okullara kırtasiye ve eğitim materyali
-          sağlıyoruz. Her bağış bir çocuğun geleceğine dokunuyor.
-        </p>
+        <h3 className="campaign-title">{campaign.title}</h3>
+        <p className="campaign-desc">{campaign.description}</p>
 
         <div className="campaign-progress-label">
-          <span>💰 {raised} / {goal} ETH</span>
+          <span>💰 {raised} / {campaign.goalEth} ETH</span>
           <span className="progress-pct">{progress}%</span>
         </div>
         <div className="campaign-track">
