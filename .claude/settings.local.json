@@ -5,7 +5,9 @@
       "Bash(npx tsc *)",
       "Bash(npx vite *)",
       "Bash(npx hardhat *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\dağıtık\\\\blockchain-donation-platform\" -Depth 0)",
+      "Bash(Select-Object Name, PSIsContainer)"
     ]
   }
 }
