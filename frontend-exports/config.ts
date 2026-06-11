@@ -3,7 +3,7 @@
 // Local ağ adresi: ignition/deployments/chain-31337/deployed_addresses.json
 // Sepolia adresi:  ignition/deployments/chain-11155111/deployed_addresses.json
 
-export const CONTRACT_ADDRESS = "0x79878186b6FA4719e93a1604563c41b45ddFCA96"; // local
+export const CONTRACT_ADDRESS = "0x4b67A3fE861D07Fc44af04707627e339D98E24df"; // local
 
 export const SUPPORTED_CHAIN_ID = 31337; // local hardhat
 // Sepolia için: 11155111

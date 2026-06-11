@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 contract Charity {
     // --- Events ---
     event Donated(address indexed donor, uint256 amount);
+    event DonatedToCampaign(address indexed donor, uint256 indexed campaignId, uint256 amount);
     event RequestCreated(uint256 indexed requestId, string description, address indexed vendor, uint256 amount);
     event Voted(uint256 indexed requestId, address indexed voter);
     event RequestFinalized(uint256 indexed requestId, address indexed vendor, uint256 amount);
@@ -34,6 +35,7 @@ contract Charity {
     address public manager;
     mapping(address => uint256) public donations;
     mapping(uint256 => mapping(address => bool)) public hasVoted;
+    mapping(uint256 => uint256) public campaignRaised;
     Request[] public requests;
     CampaignProposal[] public campaignProposals;
     uint256 public totalDonors;
@@ -62,6 +64,25 @@ contract Charity {
         if (donations[msg.sender] == 0) totalDonors++;
         donations[msg.sender] += msg.value;
         emit Donated(msg.sender, msg.value);
+    }
+
+    // --- Kampanyaya Özel Bağış ---
+    function donateToCampaign(uint256 _campaignId) public payable {
+        require(msg.value > 0, "Bagis miktari 0'dan buyuk olmali");
+        require(_campaignId < campaignProposals.length, "Gecersiz kampanya ID");
+        require(campaignProposals[_campaignId].approved, "Kampanya henuz onaylanmadi");
+
+        if (donations[msg.sender] == 0) totalDonors++;
+        donations[msg.sender] += msg.value;
+        campaignRaised[_campaignId] += msg.value;
+
+        emit DonatedToCampaign(msg.sender, _campaignId, msg.value);
+        emit Donated(msg.sender, msg.value);
+    }
+
+    function getCampaignRaised(uint256 _campaignId) public view returns (uint256) {
+        require(_campaignId < campaignProposals.length, "Gecersiz kampanya ID");
+        return campaignRaised[_campaignId];
     }
 
     // --- Harcama Talebi ---

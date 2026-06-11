@@ -5,14 +5,24 @@ import type { Campaign } from '../campaignStore'
 
 interface Props {
   campaign: Campaign
+  campaignIndex: number | null
   onDonate: () => void
 }
 
-export function CampaignCard({ campaign, onDonate }: Props) {
-  const { data: balance } = useReadContract({
+export function CampaignCard({ campaign, campaignIndex, onDonate }: Props) {
+  const { data: generalBalance } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CHARITY_ABI,
     functionName: 'getBalance',
+    query: { enabled: campaignIndex === null },
+  })
+
+  const { data: campaignBalance } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: CHARITY_ABI,
+    functionName: 'getCampaignRaised',
+    args: [BigInt(campaignIndex ?? 0)],
+    query: { enabled: campaignIndex !== null },
   })
 
   const { data: totalDonors } = useReadContract({
@@ -28,7 +38,7 @@ export function CampaignCard({ campaign, onDonate }: Props) {
   })
 
   const goal = parseEther(campaign.goalEth)
-  const bal = balance ?? 0n
+  const bal = (campaignIndex !== null ? campaignBalance : generalBalance) ?? 0n
   const progress = bal > 0n ? Math.min(100, Number((bal * 100n) / goal)) : 0
   const raised = parseFloat(formatEther(bal)).toFixed(3)
 

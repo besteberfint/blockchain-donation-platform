@@ -57,6 +57,16 @@ export function DonateForm() {
     <div className="card">
       <p className="card-title">🎁 Bağış Yap</p>
 
+      <div className="alert alert-info" style={{ marginBottom: '1rem', fontSize: '0.85rem', lineHeight: '1.6' }}>
+        <strong>Bağışınız nereye gider?</strong>
+        <ul style={{ marginTop: '0.4rem', paddingLeft: '1.2rem' }}>
+          <li>Bağışladığınız ETH, akıllı sözleşmedeki ortak havuza aktarılır.</li>
+          <li>Yönetici, fonların nasıl kullanılacağına dair <em>harcama talepleri</em> oluşturur.</li>
+          <li>Her talep için bağışçılar oy kullanır; çoğunluk oyu sağlanmadan hiçbir ödeme yapılamaz.</li>
+          <li>Tüm işlemler blok zincirinde şeffaf biçimde kaydedilir.</li>
+        </ul>
+      </div>
+
       <div className="form-group">
         <label className="form-label">Hızlı Seçim</label>
         <div className="quick-amounts">

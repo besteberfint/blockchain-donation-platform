@@ -2,7 +2,7 @@ import type { Address } from 'viem'
 
 // npm run deploy sonrası ignition/deployments/chain-31337/deployed_addresses.json
 // dosyasından alınan adres buraya yazılır.
-export const CONTRACT_ADDRESS: Address = '0x5310F27a846a5b88af0A90D31f32AAF72af7A608'
+export const CONTRACT_ADDRESS: Address = '0x4b67A3fE861D07Fc44af04707627e339D98E24df'
 
 export const CHARITY_ABI = [
   {
@@ -37,9 +37,29 @@ export const CHARITY_ABI = [
     ],
   },
   {
+    type: 'event', name: 'DonatedToCampaign',
+    inputs: [
+      { name: 'donor',      type: 'address', indexed: true  },
+      { name: 'campaignId', type: 'uint256', indexed: true  },
+      { name: 'amount',     type: 'uint256', indexed: false },
+    ],
+  },
+  {
     type: 'function', name: 'donate',
     stateMutability: 'payable',
     inputs: [], outputs: [],
+  },
+  {
+    type: 'function', name: 'donateToCampaign',
+    stateMutability: 'payable',
+    inputs: [{ name: '_campaignId', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function', name: 'getCampaignRaised',
+    stateMutability: 'view',
+    inputs: [{ name: '_campaignId', type: 'uint256' }],
+    outputs: [{ type: 'uint256' }],
   },
   {
     type: 'function', name: 'createRequest',

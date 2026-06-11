@@ -1,17 +1,22 @@
-import { useRef, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 import { formatEther } from 'viem'
 import type { Address } from 'viem'
 import { HeroSection } from '../components/HeroSection'
 import { CampaignCard } from '../components/CampaignCard'
-import { DonateForm } from '../components/DonateForm'
+import { CampaignDonateForm } from '../components/CampaignDonateForm'
 import { CreateCampaignForm } from '../components/CreateCampaignForm'
 import { getDefaultCampaigns } from '../campaignStore'
 import { CONTRACT_ADDRESS, CHARITY_ABI } from '../contract'
 import type { Campaign } from '../campaignStore'
 
+interface SelectedCampaign {
+  campaign: Campaign
+  index: number | null
+}
+
 export function CampaignPage() {
-  const donateRef = useRef<HTMLDivElement>(null)
+  const [selected, setSelected] = useState<SelectedCampaign | null>(null)
 
   const { data: countData } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -36,7 +41,7 @@ export function CampaignPage() {
     query: { enabled: count > 0 },
   })
 
-  const approvedCampaigns: Campaign[] = (proposalsData ?? [])
+  const approvedCampaigns: (Campaign & { onchainIndex: number })[] = (proposalsData ?? [])
     .map((p, i) => {
       if (p.status !== 'success' || !p.result) return null
       const [, title, description, emoji, goalWei, approved] =
@@ -48,25 +53,28 @@ export function CampaignPage() {
         description,
         emoji,
         goalEth: formatEther(goalWei),
+        onchainIndex: i,
       }
     })
-    .filter((c): c is Campaign => c !== null)
+    .filter((c): c is Campaign & { onchainIndex: number } => c !== null)
 
-  const allCampaigns = [...getDefaultCampaigns(), ...approvedCampaigns]
-
-  function scrollToDonate() {
-    donateRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const defaultCampaigns = getDefaultCampaigns().map(c => ({ ...c, onchainIndex: null as number | null }))
+  const allCampaigns = [...defaultCampaigns, ...approvedCampaigns]
 
   return (
     <main>
-      <HeroSection onExplore={scrollToDonate} />
+      <HeroSection onExplore={() => document.querySelector('.campaign-grid')?.scrollIntoView({ behavior: 'smooth' })} />
 
       <div className="container section">
         <h2 className="section-heading">Aktif Kampanyalar</h2>
         <div className="campaign-grid">
           {allCampaigns.map(c => (
-            <CampaignCard key={c.id} campaign={c} onDonate={scrollToDonate} />
+            <CampaignCard
+              key={c.id}
+              campaign={c}
+              campaignIndex={c.onchainIndex}
+              onDonate={() => setSelected({ campaign: c, index: c.onchainIndex })}
+            />
           ))}
         </div>
       </div>
@@ -78,12 +86,14 @@ export function CampaignPage() {
         </div>
       </div>
 
-      <div className="container section" ref={donateRef}>
-        <h2 className="section-heading">Bağış Yap</h2>
-        <div className="donate-section">
-          <DonateForm />
-        </div>
-      </div>
+      {selected && (
+        <CampaignDonateForm
+          campaignIndex={selected.index}
+          campaignTitle={selected.campaign.title}
+          campaignEmoji={selected.campaign.emoji}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </main>
   )
 }
